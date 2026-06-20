@@ -105,6 +105,16 @@ function cancelToken(id) {
   return state;
 }
 
+function resetQueue() {
+  const state = readState();
+  state.queue = [];
+  state.nextTokenNumber = 1;
+  state.currentToken = null;
+  state.lastResetDate = new Date().toDateString();
+  writeState(state);
+  return state;
+}
+
 function setAvgConsultationTime(minutes) {
   const state = readState();
   const value = Number(minutes);
@@ -187,6 +197,8 @@ const STYLES = `
 .btn--primary{background:var(--teal);color:#fff;} .btn--primary:hover:not(:disabled){background:var(--teal-deep);}
 .btn--call{width:100%;background:var(--coral);color:#fff;font-size:18px;padding:18px;}
 .btn--call:hover:not(:disabled){background:var(--coral-deep);}
+.btn--reset{width:100%;background:transparent;color:var(--coral-deep);border:1.5px solid var(--coral-deep);font-size:14px;padding:11px;}
+.btn--reset:hover:not(:disabled){background:#fff0ee;}
 .now-serving{display:flex;align-items:center;justify-content:space-between;background:var(--teal-deep);color:#fff;border-radius:10px;padding:16px 20px;margin-bottom:16px;}
 .now-serving__token{font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:.04em;}
 .now-serving__name{font-size:13px;opacity:.75;margin-top:2px;}
@@ -309,6 +321,7 @@ const RECEPTIONIST_HTML = `<!DOCTYPE html>
       <p class="card__label">Today's queue</p>
       <ul class="queue-list" id="queueList"></ul>
       <p class="empty-note" id="emptyNote" style="display:none;">No patients yet. Add the first one above.</p>
+      <button class="btn btn--reset" id="resetQueueBtn" type="button" style="margin-top:14px;">Reset Queue</button>
     </section>
   </div>
 
@@ -326,6 +339,7 @@ const RECEPTIONIST_HTML = `<!DOCTYPE html>
     const avgInput = document.getElementById("avgInput");
     const avgSaveBtn = document.getElementById("avgSaveBtn");
     const queueList = document.getElementById("queueList");
+    const resetQueueBtn = document.getElementById("resetQueueBtn");
     const emptyNote = document.getElementById("emptyNote");
     const toast = document.getElementById("toast");
     const themeToggle = document.getElementById("themeToggle");
@@ -415,6 +429,11 @@ const RECEPTIONIST_HTML = `<!DOCTYPE html>
     });
 
     callNextBtn.addEventListener("click", () => socket.emit("nextPatient"));
+
+    resetQueueBtn.addEventListener("click", () => {
+      if (!confirm("Reset the queue? This will clear all patients and restart token numbering from Q-001.")) return;
+      socket.emit("resetQueue");
+    });
 
     avgSaveBtn.addEventListener("click", () => {
       socket.emit("setAvgTime", { minutes: Number(avgInput.value) });
@@ -577,6 +596,11 @@ io.on("connection", (socket) => {
 
   socket.on("setAvgTime", ({ minutes } = {}) => {
     try { setAvgConsultationTime(minutes); broadcastQueueUpdate(); }
+    catch (err) { socket.emit("queueError", { message: err.message }); }
+  });
+
+  socket.on("resetQueue", () => {
+    try { resetQueue(); broadcastQueueUpdate(); }
     catch (err) { socket.emit("queueError", { message: err.message }); }
   });
 });
