@@ -24,14 +24,25 @@ const DEFAULT_STATE = {
   avgConsultationTime: 15,
   currentToken: null,
   queue: [], // { id, tokenNumber, label, name, status, createdAt, calledAt? }
+  lastResetDate: new Date().toDateString(),
 };
 
 function readState() {
   if (!fs.existsSync(DB_FILE)) {
-    writeState(DEFAULT_STATE);
-    return { ...DEFAULT_STATE };
+    const initial = { ...DEFAULT_STATE, lastResetDate: new Date().toDateString() };
+    writeState(initial);
+    return initial;
   }
-  return JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
+  const state = JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
+  const today = new Date().toDateString();
+  if (state.lastResetDate !== today) {
+    state.queue = [];
+    state.nextTokenNumber = 1;
+    state.currentToken = null;
+    state.lastResetDate = today;
+    writeState(state);
+  }
+  return state;
 }
 
 function writeState(state) {

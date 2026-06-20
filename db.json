@@ -2,5 +2,6 @@
   "nextTokenNumber": 1,
   "avgConsultationTime": 15,
   "currentToken": null,
-  "queue": []
+  "queue": [],
+  "lastResetDate": "Sat Jun 20 2026"
 }
