@@ -1,0 +1,13 @@
+{
+  "name": "queue-cure-26",
+  "version": "1.0.0",
+  "description": "Smart Clinic Queue System — real-time token queue for receptionists and patients.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}
