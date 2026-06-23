@@ -608,10 +608,32 @@ button{margin-top:14px;width:100%;padding:15px;border:none;border-radius:10px;ba
 button:hover{background:#082522;}
 button:disabled{opacity:.5;cursor:not-allowed;}
 .error{margin-top:12px;font-size:14px;color:#d6402d;display:none;}
-.success{text-align:center;padding:32px 20px;}
-.success__token{font-family:ui-monospace,"SF Mono","Cascadia Code",monospace;font-size:52px;font-weight:700;color:#0e3b36;line-height:1;margin:0 0 10px;}
-.success__msg{font-size:16px;color:#5b6e69;margin:0 0 6px;}
-.success__name{font-size:14px;color:#5b6e69;margin:0;}
+.my-token{text-align:center;padding-bottom:20px;}
+.my-token__eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#5b6e69;margin:0 0 6px;}
+.my-token__number{font-family:ui-monospace,"SF Mono","Cascadia Code",monospace;font-size:60px;font-weight:700;color:#0e3b36;line-height:1;margin:0 0 8px;}
+.my-token__name{font-size:14px;color:#5b6e69;margin:0;}
+.divider{height:1px;background:#e4ddcc;margin:0 0 20px;}
+.now-serving-row{display:flex;align-items:center;justify-content:space-between;background:#faf6ee;border:1px solid #e4ddcc;border-radius:10px;padding:12px 16px;margin-bottom:14px;}
+.now-serving-row__label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#5b6e69;margin:0;}
+.now-serving-row__val{font-family:ui-monospace,"SF Mono","Cascadia Code",monospace;font-size:18px;font-weight:700;color:#082522;margin:0;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stat-item{background:#faf6ee;border:1px solid #e4ddcc;border-radius:10px;padding:14px 12px;text-align:center;}
+.stat-item__label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#5b6e69;margin:0 0 6px;}
+.stat-item__value{font-family:ui-monospace,"SF Mono","Cascadia Code",monospace;font-size:24px;font-weight:700;color:#082522;margin:0;}
+.wait-row{text-align:center;font-size:13px;color:#5b6e69;margin:0;}
+.wait-row strong{color:#082522;}
+.state-next{text-align:center;padding:10px 0 6px;}
+.state-next__big{font-size:32px;font-weight:800;color:#d6402d;margin:0 0 8px;line-height:1.1;}
+.state-next__sub{font-size:14px;color:#5b6e69;margin:0;}
+.state-serving{text-align:center;padding:10px 0 6px;}
+.state-serving__big{font-size:26px;font-weight:800;color:#0e3b36;margin:0 0 8px;line-height:1.2;}
+.state-serving__sub{font-size:14px;color:#5b6e69;margin:0;}
+.state-done{text-align:center;padding:10px 0 6px;}
+.state-done__big{font-size:22px;font-weight:700;color:#5b6e69;margin:0 0 8px;}
+.state-done__sub{font-size:14px;color:#9fb3ad;margin:0;}
+.live-bar{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:18px;font-size:12px;color:#9fb3ad;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 1.5s ease-in-out infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
 </style>
 </head>
 <body>
@@ -632,17 +654,67 @@ button:disabled{opacity:.5;cursor:not-allowed;}
       <p class="error" id="errorMsg"></p>
     </div>
 
-    <div class="card success" id="successCard" style="display:none;">
-      <p class="success__token" id="tokenLabel">—</p>
-      <p class="success__msg">You're in the queue!</p>
-      <p class="success__name" id="successName"></p>
+    <div class="card" id="statusCard" style="display:none;">
+      <div class="my-token">
+        <p class="my-token__eyebrow">Your token</p>
+        <p class="my-token__number" id="myTokenLabel">—</p>
+        <p class="my-token__name" id="myTokenName"></p>
+      </div>
+
+      <div id="liveSection">
+        <div class="divider"></div>
+        <div class="now-serving-row">
+          <p class="now-serving-row__label">Now serving</p>
+          <p class="now-serving-row__val" id="nowServingVal">—</p>
+        </div>
+
+        <div id="stateWaiting" style="display:none;">
+          <div class="stat-grid">
+            <div class="stat-item">
+              <p class="stat-item__label">Ahead of you</p>
+              <p class="stat-item__value" id="aheadVal">—</p>
+            </div>
+            <div class="stat-item">
+              <p class="stat-item__label">Est. wait</p>
+              <p class="stat-item__value" id="estWaitVal">—</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="stateNext" style="display:none;">
+          <div class="state-next">
+            <p class="state-next__big">You're next! 🎉</p>
+            <p class="state-next__sub">The doctor will call you shortly.</p>
+          </div>
+        </div>
+
+        <div id="stateServing" style="display:none;">
+          <div class="state-serving">
+            <p class="state-serving__big">You're being seen now!</p>
+            <p class="state-serving__sub">Please head to the doctor's room.</p>
+          </div>
+        </div>
+
+        <div id="stateDone" style="display:none;">
+          <div class="state-done">
+            <p class="state-done__big">Visit complete ✓</p>
+            <p class="state-done__sub">Thank you for visiting us today.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="live-bar"><span class="live-dot"></span>Live updates</div>
     </div>
   </div>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script>
     const nameInput = document.getElementById("nameInput");
     const submitBtn = document.getElementById("submitBtn");
     const errorMsg = document.getElementById("errorMsg");
+
+    let myTokenNumber = null;
+    let myId = null;
 
     async function submit() {
       const name = nameInput.value.trim();
@@ -658,10 +730,13 @@ button:disabled{opacity:.5;cursor:not-allowed;}
         });
         const data = await res.json();
         if (data.ok) {
-          document.getElementById("tokenLabel").textContent = data.label;
-          document.getElementById("successName").textContent = "Welcome, " + data.name + "!";
+          myTokenNumber = data.tokenNumber;
+          myId = data.id;
+          document.getElementById("myTokenLabel").textContent = data.label;
+          document.getElementById("myTokenName").textContent = "Welcome, " + data.name + "!";
           document.getElementById("formCard").style.display = "none";
-          document.getElementById("successCard").style.display = "block";
+          document.getElementById("statusCard").style.display = "block";
+          startLive();
         } else {
           showError(data.error || "Something went wrong. Please try again.");
           submitBtn.disabled = false;
@@ -675,6 +750,40 @@ button:disabled{opacity:.5;cursor:not-allowed;}
     }
 
     function showError(msg) { errorMsg.textContent = msg; errorMsg.style.display = "block"; }
+
+    function startLive() {
+      const socket = io();
+      socket.on("queueUpdated", (payload) => updateStatus(payload.full));
+    }
+
+    function updateStatus(state) {
+      const myToken = state.queue.find((t) => t.id === myId);
+      if (!myToken) return;
+
+      const nowLabel = state.currentToken ? state.currentToken.label : "—";
+      document.getElementById("nowServingVal").textContent = nowLabel;
+
+      const waitingAhead = state.queue.filter(
+        (t) => t.status === "Waiting" && t.tokenNumber < myTokenNumber
+      ).length;
+
+      ["stateWaiting", "stateNext", "stateServing", "stateDone"].forEach(
+        (id) => (document.getElementById(id).style.display = "none")
+      );
+
+      if (myToken.status === "Completed" || myToken.status === "No-show") {
+        document.getElementById("stateDone").style.display = "block";
+      } else if (myToken.status === "In-Consultation") {
+        document.getElementById("stateServing").style.display = "block";
+      } else if (waitingAhead === 0) {
+        document.getElementById("stateNext").style.display = "block";
+      } else {
+        const estMinutes = waitingAhead * state.avgConsultationTime;
+        document.getElementById("aheadVal").textContent = waitingAhead;
+        document.getElementById("estWaitVal").textContent = "~" + estMinutes + " min";
+        document.getElementById("stateWaiting").style.display = "block";
+      }
+    }
 
     submitBtn.addEventListener("click", submit);
     nameInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
@@ -707,7 +816,7 @@ app.post("/api/checkin", (req, res) => {
     const state = addPatient(name);
     const token = state.queue[state.queue.length - 1];
     broadcastQueueUpdate();
-    res.json({ ok: true, label: token.label, name: token.name });
+    res.json({ ok: true, label: token.label, name: token.name, id: token.id, tokenNumber: token.tokenNumber });
   } catch (err) {
     res.status(400).json({ ok: false, error: err.message });
   }

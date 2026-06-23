@@ -1,7 +1,47 @@
 {
-  "nextTokenNumber": 1,
+  "nextTokenNumber": 5,
   "avgConsultationTime": 15,
-  "currentToken": null,
-  "queue": [],
+  "currentToken": {
+    "id": "t_1782209586039_kpoxd",
+    "tokenNumber": 2,
+    "label": "Q-002",
+    "name": "hlo"
+  },
+  "queue": [
+    {
+      "id": "t_1782209584170_2trjs",
+      "tokenNumber": 1,
+      "label": "Q-001",
+      "name": "hi",
+      "status": "Completed",
+      "createdAt": "2026-06-23T10:13:04.170Z",
+      "calledAt": "2026-06-23T10:16:49.012Z"
+    },
+    {
+      "id": "t_1782209586039_kpoxd",
+      "tokenNumber": 2,
+      "label": "Q-002",
+      "name": "hlo",
+      "status": "In-Consultation",
+      "createdAt": "2026-06-23T10:13:06.040Z",
+      "calledAt": "2026-06-23T10:17:02.602Z"
+    },
+    {
+      "id": "t_1782209589303_4h9d1",
+      "tokenNumber": 3,
+      "label": "Q-003",
+      "name": "htu",
+      "status": "Waiting",
+      "createdAt": "2026-06-23T10:13:09.303Z"
+    },
+    {
+      "id": "t_1782209609278_4n204",
+      "tokenNumber": 4,
+      "label": "Q-004",
+      "name": "Jane",
+      "status": "Waiting",
+      "createdAt": "2026-06-23T10:13:29.278Z"
+    }
+  ],
   "lastResetDate": "Tue Jun 23 2026"
 }
