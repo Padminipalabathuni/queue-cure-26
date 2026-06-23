@@ -1,6 +1,6 @@
-# Socket Event Diagram — Queue Cure '26
+Socket Event Diagram — Queue Cure '26
 
-This diagram illustrates the real-time synchronization between the Receptionist and Patient screens.Our architecture follows a consistent event-driven pattern: when the Receptionist triggers an action, the Server processes the request, updates the data source, and broadcasts the current state to all connected clients simultaneously.
+This diagram illustrates the real-time synchronization between the Receptionist and Patient screens. Our architecture follows a consistent event-driven pattern: when the Receptionist triggers an action, the Server processes the request, updates the data source, and broadcasts the current state to all connected clients simultaneously.
 
 RECEPTIONIST SCREEN                    SERVER                      PATIENT SCREEN(S)
 |                                 |                                |
@@ -11,7 +11,7 @@ RECEPTIONIST SCREEN                    SERVER                      PATIENT SCREE
 | emit "nextPatient"              |                                |
 |-------------------------------->|                                |
 |                                 | callNext()                     |
-|                                 |  - if no one Waiting:          |
+|                                 |  - if no one waiting:          |
 |                                 |      emit "queueError" back    |
 |                                 |      to sender only            |
 |                                 |  - else: write db.json         |
@@ -30,24 +30,40 @@ RECEPTIONIST SCREEN                    SERVER                      PATIENT SCREE
 |                                 |                                |
 |          broadcast "queueUpdated" { full, public, analytics }    |
 |<--------------------------------|------------------------------->|
-| renders full state              |          renders public view  |
-| (queue list, now serving)       |          (current token,      |
-|                                 |           tokens ahead, wait) |
-## Event Reference
+| renders full state              |          renders public view   |
+| (queue list, now serving)       |          (current token,       |
+|                                 |           tokens ahead, wait)  |
 
-| Event | Direction | Payload | Purpose |
-|---|---|---|---|
-| `addPatient` | Client → Server | `{ name }` | Registers a new patient token |
-| `nextPatient` | Client → Server | *(none)* | Calls the next waiting patient |
-| `cancelToken` | Client → Server | `{ id }` | Cancels a token or marks as no-show |
-| `setAvgTime` | Client → Server | `{ minutes }` | Updates wait-time multiplier |
-| `resetQueue` | Client → Server | *(none)* | Clears queue; resets numbering |
-| `queueUpdated` | Server → All | `{ full, public, analytics }` | Broadcasts state changes to all clients |
-| `queueError` | Server → Sender | `{ message, code? }` | Feedback for failed operations |
+Additional Flow (QR Self-Checkin)
 
-## Why I also have plain REST routes
+PATIENT MOBILE                      SERVER                    RECEPTIONIST + WAITING BOARD
+|                                   |                                   |
+| POST /api/checkin { name }        |                                   |
+|---------------------------------->|                                   |
+|                                   | addPatient()                      |
+|                                   | write db.json                     |
+|                                   |                                   |
+|          broadcast "queueUpdated" { full, public, analytics }         |
+|<----------------------------------|---------------------------------->|
+| receives confirmation             | updates receptionist dashboard    |
+| token generated                   | updates waiting board instantly   |
+
+Event Reference
+
+Event| Direction| Payload| Purpose
+"addPatient"| Client → Server| "{ name }"| Registers a new patient token
+"nextPatient"| Client → Server| (none)| Calls the next waiting patient
+"cancelToken"| Client → Server| "{ id }"| Cancels a token or marks as no-show
+"setAvgTime"| Client → Server| "{ minutes }"| Updates wait-time multiplier
+"resetQueue"| Client → Server| (none)| Clears queue; resets numbering
+"queueUpdated"| Server → All| "{ full, public, analytics }"| Broadcasts state changes to all clients
+"queueError"| Server → Sender| "{ message, code? }"| Feedback for failed operations
+"POST /api/checkin"| Mobile → Server| "{ name }"| Allows patients to join the queue via QR self-checkin
+
+Why I also have plain REST routes
+
 On page load (or refresh), the screens don't yet have a live socket
-update to show — so I added simple `GET` routes (`/api/queue`,
-`/api/state`, `/api/analytics`) that return the current saved state
+update to show — so I added simple "GET" routes ("/api/queue",
+"/api/state", "/api/analytics") that return the current saved state
 immediately, so the page never shows "empty" by mistake while waiting
 for the first real-time update.
