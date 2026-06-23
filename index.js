@@ -241,6 +241,9 @@ const STYLES = `
 .board__next-up{margin-top:28px;font-size:14px;color:#8c9b95;}
 .sound-enable{position:absolute;top:22px;left:50%;transform:translateX(-50%);background:var(--board-panel);border:1px solid var(--board-line);color:var(--amber);font-size:13px;padding:9px 16px;border-radius:99px;cursor:pointer;z-index:2;}
 .sound-enable:hover{border-color:var(--amber-dim);}
+.qr-section{margin-top:36px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.qr-section__label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#8c9b95;margin:0;}
+.qr-section__box{background:#fff;padding:10px;border-radius:10px;line-height:0;}
 @media (prefers-reduced-motion: reduce){.board__token.is-fresh{animation:none;}}
 @media (max-width:480px){
   .desk{padding:20px 14px 50px;} .card{padding:18px;}
@@ -318,6 +321,15 @@ const RECEPTIONIST_HTML = `<!DOCTYPE html>
     </section>
 
     <section class="card">
+      <p class="card__label">Self check-in QR code</p>
+      <p style="font-size:13px;color:var(--ink-soft);margin:0 0 16px;">Patients can scan this with their phone to join the queue.</p>
+      <div style="text-align:center;">
+        <div id="receptionistQR" style="display:inline-block;background:#fff;padding:10px;border-radius:10px;border:1px solid var(--line);line-height:0;"></div>
+        <p style="font-size:12px;color:var(--ink-soft);margin:8px 0 0;word-break:break-all;" id="receptionistQRUrl"></p>
+      </div>
+    </section>
+
+    <section class="card">
       <p class="card__label">Today's queue</p>
       <ul class="queue-list" id="queueList"></ul>
       <p class="empty-note" id="emptyNote" style="display:none;">No patients yet. Add the first one above.</p>
@@ -327,6 +339,7 @@ const RECEPTIONIST_HTML = `<!DOCTYPE html>
 
   <div class="toast" id="toast"></div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
@@ -448,6 +461,11 @@ const RECEPTIONIST_HTML = `<!DOCTYPE html>
 
     socket.on("queueUpdated", (payload) => { render(payload.full); renderAnalytics(payload.analytics); });
     socket.on("queueError", (err) => showToast(err.message || "Something went wrong."));
+    (function initReceptionistQR() {
+      const url = window.location.origin + "/checkin";
+      document.getElementById("receptionistQRUrl").textContent = url;
+      new QRCode(document.getElementById("receptionistQR"), { text: url, width: 160, height: 160, colorDark: "#082522", colorLight: "#ffffff" });
+    })();
   </script>
 </body>
 </html>`;
@@ -475,8 +493,13 @@ const PATIENT_HTML = `<!DOCTYPE html>
       <div class="stat"><p class="stat__label">Estimated wait</p><p class="stat__value stat__value--highlight" id="waitValue">0 min</p></div>
     </div>
     <p class="board__next-up" id="nextUpNote"></p>
+    <div class="qr-section">
+      <p class="qr-section__label">Scan to check in</p>
+      <div id="boardQR" class="qr-section__box"></div>
+    </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
@@ -553,6 +576,109 @@ const PATIENT_HTML = `<!DOCTYPE html>
     });
 
     socket.on("queueUpdated", (payload) => render(payload.public));
+    new QRCode(document.getElementById("boardQR"), { text: window.location.origin + "/checkin", width: 128, height: 128, colorDark: "#f3ede0", colorLight: "#0a1614" });
+  </script>
+</body>
+</html>`;
+
+// -----------------------------------------------------------------------------
+// SELF CHECK-IN PAGE
+// -----------------------------------------------------------------------------
+const CHECKIN_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Queue Cure '26 — Check In</title>
+<style>
+*{box-sizing:border-box;}
+body{margin:0;font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:#faf6ee;color:#16302c;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.wrap{width:100%;max-width:380px;}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:32px;}
+.logo{width:38px;height:38px;border-radius:10px;background:#0e3b36;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#d6402d;margin:0 0 2px;}
+.title{font-size:18px;font-weight:700;margin:0;color:#082522;}
+.card{background:#fff;border:1px solid #e4ddcc;border-radius:14px;padding:28px;}
+.card__heading{font-size:20px;font-weight:700;margin:0 0 6px;}
+.card__sub{font-size:14px;color:#5b6e69;margin:0 0 22px;}
+label{display:block;font-size:13px;font-weight:600;color:#5b6e69;margin-bottom:7px;letter-spacing:.04em;text-transform:uppercase;}
+input{width:100%;padding:14px 15px;border-radius:10px;border:1.5px solid #e4ddcc;font-size:16px;background:#faf6ee;color:#16302c;outline:none;}
+input:focus{border-color:#0e3b36;}
+button{margin-top:14px;width:100%;padding:15px;border:none;border-radius:10px;background:#0e3b36;color:#fff;font-size:16px;font-weight:600;cursor:pointer;}
+button:hover{background:#082522;}
+button:disabled{opacity:.5;cursor:not-allowed;}
+.error{margin-top:12px;font-size:14px;color:#d6402d;display:none;}
+.success{text-align:center;padding:32px 20px;}
+.success__token{font-family:ui-monospace,"SF Mono","Cascadia Code",monospace;font-size:52px;font-weight:700;color:#0e3b36;line-height:1;margin:0 0 10px;}
+.success__msg{font-size:16px;color:#5b6e69;margin:0 0 6px;}
+.success__name{font-size:14px;color:#5b6e69;margin:0;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v18M3 12h18"/></svg>
+      </div>
+      <div><p class="eyebrow">Queue Cure '26</p><h1 class="title">Patient Check-In</h1></div>
+    </div>
+
+    <div class="card" id="formCard">
+      <h2 class="card__heading">Join the queue</h2>
+      <p class="card__sub">Enter your name and we'll add you to the queue.</p>
+      <label for="nameInput">Your name</label>
+      <input type="text" id="nameInput" placeholder="e.g. Jane Smith" maxlength="60" autocomplete="name" />
+      <button type="button" id="submitBtn">Get my token</button>
+      <p class="error" id="errorMsg"></p>
+    </div>
+
+    <div class="card success" id="successCard" style="display:none;">
+      <p class="success__token" id="tokenLabel">—</p>
+      <p class="success__msg">You're in the queue!</p>
+      <p class="success__name" id="successName"></p>
+    </div>
+  </div>
+
+  <script>
+    const nameInput = document.getElementById("nameInput");
+    const submitBtn = document.getElementById("submitBtn");
+    const errorMsg = document.getElementById("errorMsg");
+
+    async function submit() {
+      const name = nameInput.value.trim();
+      if (!name) { showError("Please enter your name."); return; }
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Adding you…";
+      errorMsg.style.display = "none";
+      try {
+        const res = await fetch("/api/checkin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          document.getElementById("tokenLabel").textContent = data.label;
+          document.getElementById("successName").textContent = "Welcome, " + data.name + "!";
+          document.getElementById("formCard").style.display = "none";
+          document.getElementById("successCard").style.display = "block";
+        } else {
+          showError(data.error || "Something went wrong. Please try again.");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Get my token";
+        }
+      } catch {
+        showError("Connection error. Please try again.");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Get my token";
+      }
+    }
+
+    function showError(msg) { errorMsg.textContent = msg; errorMsg.style.display = "block"; }
+
+    submitBtn.addEventListener("click", submit);
+    nameInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+    nameInput.focus();
   </script>
 </body>
 </html>`;
@@ -564,13 +690,28 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+app.use(express.json());
+
 app.get("/", (req, res) => res.redirect("/receptionist"));
 app.get("/receptionist", (req, res) => res.send(RECEPTIONIST_HTML));
 app.get("/patient", (req, res) => res.send(PATIENT_HTML));
+app.get("/checkin", (req, res) => res.send(CHECKIN_HTML));
 
 app.get("/api/state", (req, res) => res.json(getPublicView()));
 app.get("/api/queue", (req, res) => res.json(getState()));
 app.get("/api/analytics", (req, res) => res.json(getAnalytics()));
+
+app.post("/api/checkin", (req, res) => {
+  try {
+    const { name } = req.body || {};
+    const state = addPatient(name);
+    const token = state.queue[state.queue.length - 1];
+    broadcastQueueUpdate();
+    res.json({ ok: true, label: token.label, name: token.name });
+  } catch (err) {
+    res.status(400).json({ ok: false, error: err.message });
+  }
+});
 
 function broadcastQueueUpdate() {
   io.emit("queueUpdated", { full: getState(), public: getPublicView(), analytics: getAnalytics() });

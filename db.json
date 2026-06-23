@@ -1,40 +1,7 @@
 {
-  "nextTokenNumber": 4,
+  "nextTokenNumber": 1,
   "avgConsultationTime": 15,
-  "currentToken": {
-    "id": "t_1781966356767_pxwuo",
-    "tokenNumber": 3,
-    "label": "Q-003",
-    "name": "ram"
-  },
-  "queue": [
-    {
-      "id": "t_1781966349859_5cj9v",
-      "tokenNumber": 1,
-      "label": "Q-001",
-      "name": "sia",
-      "status": "Completed",
-      "createdAt": "2026-06-20T14:39:09.859Z",
-      "calledAt": "2026-06-20T14:39:34.892Z"
-    },
-    {
-      "id": "t_1781966354313_bwax3",
-      "tokenNumber": 2,
-      "label": "Q-002",
-      "name": "rani",
-      "status": "Completed",
-      "createdAt": "2026-06-20T14:39:14.313Z",
-      "calledAt": "2026-06-20T14:39:42.738Z"
-    },
-    {
-      "id": "t_1781966356767_pxwuo",
-      "tokenNumber": 3,
-      "label": "Q-003",
-      "name": "ram",
-      "status": "In-Consultation",
-      "createdAt": "2026-06-20T14:39:16.767Z",
-      "calledAt": "2026-06-20T14:39:53.641Z"
-    }
-  ],
-  "lastResetDate": "Sat Jun 20 2026"
+  "currentToken": null,
+  "queue": [],
+  "lastResetDate": "Tue Jun 23 2026"
 }
