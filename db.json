@@ -2,56 +2,56 @@
   "nextTokenNumber": 6,
   "avgConsultationTime": 15,
   "currentToken": {
-    "id": "t_1782210005593_lks76",
+    "id": "t_1782210274720_wn2a7",
     "tokenNumber": 5,
     "label": "Q-005",
     "name": "Jane"
   },
   "queue": [
     {
-      "id": "t_1782209584170_2trjs",
+      "id": "t_1782210178499_o9srb",
       "tokenNumber": 1,
       "label": "Q-001",
-      "name": "hi",
+      "name": "ru",
       "status": "Completed",
-      "createdAt": "2026-06-23T10:13:04.170Z",
-      "calledAt": "2026-06-23T10:16:49.012Z"
+      "createdAt": "2026-06-23T10:22:58.499Z",
+      "calledAt": "2026-06-23T10:23:06.694Z"
     },
     {
-      "id": "t_1782209586039_kpoxd",
+      "id": "t_1782210179810_def81",
       "tokenNumber": 2,
       "label": "Q-002",
-      "name": "hlo",
+      "name": "rg",
       "status": "Completed",
-      "createdAt": "2026-06-23T10:13:06.040Z",
-      "calledAt": "2026-06-23T10:17:02.602Z"
+      "createdAt": "2026-06-23T10:22:59.810Z",
+      "calledAt": "2026-06-23T10:23:17.073Z"
     },
     {
-      "id": "t_1782209589303_4h9d1",
+      "id": "t_1782210180856_qpeak",
       "tokenNumber": 3,
       "label": "Q-003",
-      "name": "htu",
+      "name": "jh",
       "status": "Completed",
-      "createdAt": "2026-06-23T10:13:09.303Z",
-      "calledAt": "2026-06-23T10:20:13.774Z"
+      "createdAt": "2026-06-23T10:23:00.856Z",
+      "calledAt": "2026-06-23T10:24:53.311Z"
     },
     {
-      "id": "t_1782209609278_4n204",
+      "id": "t_1782210182388_p11yd",
       "tokenNumber": 4,
       "label": "Q-004",
-      "name": "Jane",
+      "name": "jk",
       "status": "Completed",
-      "createdAt": "2026-06-23T10:13:29.278Z",
-      "calledAt": "2026-06-23T10:20:16.074Z"
+      "createdAt": "2026-06-23T10:23:02.389Z",
+      "calledAt": "2026-06-23T10:25:02.578Z"
     },
     {
-      "id": "t_1782210005593_lks76",
+      "id": "t_1782210274720_wn2a7",
       "tokenNumber": 5,
       "label": "Q-005",
       "name": "Jane",
       "status": "In-Consultation",
-      "createdAt": "2026-06-23T10:20:05.593Z",
-      "calledAt": "2026-06-23T10:20:23.139Z"
+      "createdAt": "2026-06-23T10:24:34.720Z",
+      "calledAt": "2026-06-23T10:25:10.566Z"
     }
   ],
   "lastResetDate": "Tue Jun 23 2026"
