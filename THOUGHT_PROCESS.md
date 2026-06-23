@@ -44,6 +44,9 @@ behavior.
 5. **No-shows** — a waiting patient can be cancelled without messing up
    the token numbers of everyone else still in line.
 
+## New Feature: QR Code Self-Checkin
+I added a QR Code self-checkin feature on the receptionist screen. Patients can scan the QR with their phone and join the queue directly by entering their name. This reduces the receptionist's workload and makes the system more convenient.
+
 ## How I Calculate Wait Time
 I multiply how many patients are still waiting by the average
 consultation time the receptionist sets — both of these come from live,
