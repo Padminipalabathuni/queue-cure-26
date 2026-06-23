@@ -1,11 +1,11 @@
 {
-  "nextTokenNumber": 5,
+  "nextTokenNumber": 6,
   "avgConsultationTime": 15,
   "currentToken": {
-    "id": "t_1782209586039_kpoxd",
-    "tokenNumber": 2,
-    "label": "Q-002",
-    "name": "hlo"
+    "id": "t_1782210005593_lks76",
+    "tokenNumber": 5,
+    "label": "Q-005",
+    "name": "Jane"
   },
   "queue": [
     {
@@ -22,7 +22,7 @@
       "tokenNumber": 2,
       "label": "Q-002",
       "name": "hlo",
-      "status": "In-Consultation",
+      "status": "Completed",
       "createdAt": "2026-06-23T10:13:06.040Z",
       "calledAt": "2026-06-23T10:17:02.602Z"
     },
@@ -31,16 +31,27 @@
       "tokenNumber": 3,
       "label": "Q-003",
       "name": "htu",
-      "status": "Waiting",
-      "createdAt": "2026-06-23T10:13:09.303Z"
+      "status": "Completed",
+      "createdAt": "2026-06-23T10:13:09.303Z",
+      "calledAt": "2026-06-23T10:20:13.774Z"
     },
     {
       "id": "t_1782209609278_4n204",
       "tokenNumber": 4,
       "label": "Q-004",
       "name": "Jane",
-      "status": "Waiting",
-      "createdAt": "2026-06-23T10:13:29.278Z"
+      "status": "Completed",
+      "createdAt": "2026-06-23T10:13:29.278Z",
+      "calledAt": "2026-06-23T10:20:16.074Z"
+    },
+    {
+      "id": "t_1782210005593_lks76",
+      "tokenNumber": 5,
+      "label": "Q-005",
+      "name": "Jane",
+      "status": "In-Consultation",
+      "createdAt": "2026-06-23T10:20:05.593Z",
+      "calledAt": "2026-06-23T10:20:23.139Z"
     }
   ],
   "lastResetDate": "Tue Jun 23 2026"
